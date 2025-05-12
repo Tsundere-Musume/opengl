@@ -94,12 +94,10 @@ int main(int argc, char *argv[]) {
   glDeleteShader(fragmentShader);
 
   // clang-format off
-  float firstTriangle[] = {
+  float vertices[] = {
       -1.0f, -0.5f, 0,
 	  	0,   -0.5f, 0,
 	  -0.5f,  0.5f, 0,
-  };
-  float secondTriangle[] = {
       	0, -0.5f, 0,
 	  	1,   -0.5f, 0,
 	0.5f,  0.5f, 0,
@@ -107,32 +105,21 @@ int main(int argc, char *argv[]) {
   // clang-format on
 
   // Vertex Buffer Object
-  unsigned int VBO, VBO2;
-  unsigned int VAO, VAO2;
+  unsigned int VBO ;
+  unsigned int VAO;
   glGenBuffers(1, &VBO);
-  glGenBuffers(1, &VBO2);
   glGenVertexArrays(1, &VAO);
-  glGenVertexArrays(1, &VAO2);
 
   glBindVertexArray(VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(secondTriangle), secondTriangle,
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
                GL_STATIC_DRAW);
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
 
   glBindVertexArray(0);
 
-  glBindVertexArray(VAO2);
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBO2);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(firstTriangle), firstTriangle,
-               GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
-
-  glBindVertexArray(0);
   // Wireframe mode
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   // render loop
@@ -148,8 +135,7 @@ int main(int argc, char *argv[]) {
     glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(VAO2);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawArrays(GL_TRIANGLES, 3, 3);
 
     // check and call events and swap the buffers
     glfwSwapBuffers(window);
