@@ -21,6 +21,13 @@ const char *fragmentShaderSource =
     "	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
     "}\0";
 
+const char *yellowFragmentShaderSource =
+    "#version 330 core\n"
+    "out vec4 FragColor;\n"
+    "void main()\n"
+    "{\n"
+    "	FragColor = vec4(0.99, 1.00, 0.00, 1.0);\n"
+    "}\0";
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 
@@ -76,6 +83,21 @@ int main(int argc, char *argv[]) {
               << infoLog << std::endl;
   }
 
+
+  // yellow fragment shader
+  unsigned int yellowFragmentShader;
+  yellowFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+  glShaderSource(yellowFragmentShader, 1, &yellowFragmentShaderSource, NULL);
+  glCompileShader(yellowFragmentShader);
+
+  glGetShaderiv(yellowFragmentShader, GL_COMPILE_STATUS, &success);
+
+  if (!success) {
+    glGetShaderInfoLog(yellowFragmentShader, 512, NULL, infoLog);
+    std::cout << "ERROR::SHADER::YELLOW_FRAGMENT::COMPILATION_FAILED\n"
+              << infoLog << std::endl;
+  }
+
   // shader program
   unsigned int shaderProgram;
   shaderProgram = glCreateProgram();
@@ -86,6 +108,20 @@ int main(int argc, char *argv[]) {
   if (!success) {
     glGetShaderInfoLog(shaderProgram, 512, NULL, infoLog);
     std::cout << "ERROR::SHADER::PROGRAM::COMPILATION_FAILED\n"
+              << infoLog << std::endl;
+  }
+
+
+  // yello shader program
+  unsigned int yellowShaderProgram;
+  yellowShaderProgram = glCreateProgram();
+  glAttachShader(yellowShaderProgram, vertexShader);
+  glAttachShader(yellowShaderProgram, yellowFragmentShader);
+  glLinkProgram(yellowShaderProgram);
+  glGetShaderiv(yellowShaderProgram, GL_LINK_STATUS, &success);
+  if (!success) {
+    glGetShaderInfoLog(yellowShaderProgram, 512, NULL, infoLog);
+    std::cout << "ERROR::YELLOW_SHADER::PROGRAM::COMPILATION_FAILED\n"
               << infoLog << std::endl;
   }
 
@@ -135,6 +171,7 @@ int main(int argc, char *argv[]) {
     glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
+    glUseProgram(yellowShaderProgram);
     glDrawArrays(GL_TRIANGLES, 3, 3);
 
     // check and call events and swap the buffers
