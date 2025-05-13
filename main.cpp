@@ -31,34 +31,27 @@ int main(int argc, char *argv[]) {
     return -1;
   }
 
-  //shaders
+  // shaders
   Shader ourShader("./shader_vs.glsl", "./shader_fs.glsl");
   // clang-format off
-  float firstTriangle[] = {
-      -1.0f, -0.5f, 0,1.0f, 0.0f, 0.0f,
-	  	0,   -0.5f, 0, 0.0f, 1.0f, 0.0f,
-	  -0.5f,  0.5f, 0, 0.0f, 0.0f, 1.0f,
-  };
-  float secondTriangle[] = {
-      	0, -0.5f, 0, 1, 0,0,
-	  	1,   -0.5f, 0, 0,1,0,
-	0.5f,  0.5f, 0, 0,0,1,
-  };
+  float vertices[] = {
+        // positions         // colors
+         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // bottom left
+         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // top 
+   };
   // clang-format on
-	
 
   // Vertex Buffer Object
-  unsigned int VBO, VBO2;
-  unsigned int VAO, VAO2;
+  unsigned int VBO;
+  unsigned int VAO;
   glGenBuffers(1, &VBO);
-  glGenBuffers(1, &VBO2);
   glGenVertexArrays(1, &VAO);
-  glGenVertexArrays(1, &VAO2);
 
   glBindVertexArray(VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(secondTriangle), secondTriangle,
+  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
                GL_STATIC_DRAW);
   // position attribute
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
@@ -69,19 +62,6 @@ int main(int argc, char *argv[]) {
   glEnableVertexAttribArray(1);
 
   glBindVertexArray(0);
-
-  glBindVertexArray(VAO2);
-
-  glBindBuffer(GL_ARRAY_BUFFER, VBO2);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(firstTriangle), firstTriangle,
-               GL_STATIC_DRAW);
-  // position attribute
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
-  glEnableVertexAttribArray(0);
-  // color attribute
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
-                        (void *)(3 * sizeof(float)));
-  glEnableVertexAttribArray(1);
 
   glBindVertexArray(0);
   // Wireframe mode
@@ -96,10 +76,9 @@ int main(int argc, char *argv[]) {
     glClear(GL_COLOR_BUFFER_BIT);         // state using function
 
     // triangles wooooo
-	ourShader.use();
+    ourShader.use();
+	ourShader.setFloat("xOffset", 0.5f);
     glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(VAO2);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // check and call events and swap the buffers
@@ -109,7 +88,7 @@ int main(int argc, char *argv[]) {
 
   glDeleteVertexArrays(1, &VAO);
   glDeleteBuffers(1, &VBO);
-  //glDeleteProgram(shaderProgram);
+  // glDeleteProgram(shaderProgram);
   glfwTerminate();
   return 0;
 }
