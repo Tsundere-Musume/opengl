@@ -5,29 +5,24 @@
 #include <iostream>
 // clang-format on
 
-const char *vertexShaderSource =
-    "#version 330 core\n"
-    "layout (location = 0) in vec3 aPos;\n"
-    "void main()\n"
-    "{\n"
-    " gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
-    "}\0";
+const char *vertexShaderSource = "#version 330 core\n"
+                                 "layout (location = 0) in vec3 aPos;\n"
+                                 "layout (location = 1) in vec3 aColor;\n"
+                                 "out vec3 ourColor;\n"
+                                 "void main()\n"
+                                 "{\n"
+                                 " gl_Position = vec4(aPos, 1.0);\n"
+                                 "ourColor = aColor;\n"
+                                 "}\0";
 
-const char *fragmentShaderSource =
-    "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "	FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
-    "}\0";
+const char *fragmentShaderSource = "#version 330 core\n"
+                                   "out vec4 FragColor;\n"
+                                   "in vec3 ourColor;\n"
+                                   "void main()\n"
+                                   "{\n"
+                                   "	FragColor = vec4(ourColor, 1.0);\n"
+                                   "}\0";
 
-const char *yellowFragmentShaderSource =
-    "#version 330 core\n"
-    "out vec4 FragColor;\n"
-    "void main()\n"
-    "{\n"
-    "	FragColor = vec4(0.99, 1.00, 0.00, 1.0);\n"
-    "}\0";
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 
@@ -83,21 +78,6 @@ int main(int argc, char *argv[]) {
               << infoLog << std::endl;
   }
 
-
-  // yellow fragment shader
-  unsigned int yellowFragmentShader;
-  yellowFragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-  glShaderSource(yellowFragmentShader, 1, &yellowFragmentShaderSource, NULL);
-  glCompileShader(yellowFragmentShader);
-
-  glGetShaderiv(yellowFragmentShader, GL_COMPILE_STATUS, &success);
-
-  if (!success) {
-    glGetShaderInfoLog(yellowFragmentShader, 512, NULL, infoLog);
-    std::cout << "ERROR::SHADER::YELLOW_FRAGMENT::COMPILATION_FAILED\n"
-              << infoLog << std::endl;
-  }
-
   // shader program
   unsigned int shaderProgram;
   shaderProgram = glCreateProgram();
@@ -111,51 +91,60 @@ int main(int argc, char *argv[]) {
               << infoLog << std::endl;
   }
 
-
-  // yello shader program
-  unsigned int yellowShaderProgram;
-  yellowShaderProgram = glCreateProgram();
-  glAttachShader(yellowShaderProgram, vertexShader);
-  glAttachShader(yellowShaderProgram, yellowFragmentShader);
-  glLinkProgram(yellowShaderProgram);
-  glGetShaderiv(yellowShaderProgram, GL_LINK_STATUS, &success);
-  if (!success) {
-    glGetShaderInfoLog(yellowShaderProgram, 512, NULL, infoLog);
-    std::cout << "ERROR::YELLOW_SHADER::PROGRAM::COMPILATION_FAILED\n"
-              << infoLog << std::endl;
-  }
-
   // delete the shader objects after linking to the shader program
   glDeleteShader(vertexShader);
   glDeleteShader(fragmentShader);
 
   // clang-format off
-  float vertices[] = {
-      -1.0f, -0.5f, 0,
-	  	0,   -0.5f, 0,
-	  -0.5f,  0.5f, 0,
-      	0, -0.5f, 0,
-	  	1,   -0.5f, 0,
-	0.5f,  0.5f, 0,
+  float firstTriangle[] = {
+      -1.0f, -0.5f, 0,1.0f, 0.0f, 0.0f,
+	  	0,   -0.5f, 0, 0.0f, 1.0f, 0.0f,
+	  -0.5f,  0.5f, 0, 0.0f, 0.0f, 1.0f,
+  };
+  float secondTriangle[] = {
+      	0, -0.5f, 0, 1, 0,0,
+	  	1,   -0.5f, 0, 0,1,0,
+	0.5f,  0.5f, 0, 0,0,1,
   };
   // clang-format on
 
   // Vertex Buffer Object
-  unsigned int VBO ;
-  unsigned int VAO;
+  unsigned int VBO, VBO2;
+  unsigned int VAO, VAO2;
   glGenBuffers(1, &VBO);
+  glGenBuffers(1, &VBO2);
   glGenVertexArrays(1, &VAO);
+  glGenVertexArrays(1, &VAO2);
 
   glBindVertexArray(VAO);
 
   glBindBuffer(GL_ARRAY_BUFFER, VBO);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices,
+  glBufferData(GL_ARRAY_BUFFER, sizeof(secondTriangle), secondTriangle,
                GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void *)0);
+  // position attribute
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
   glEnableVertexAttribArray(0);
+  // color attribute
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+                        (void *)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
 
   glBindVertexArray(0);
 
+  glBindVertexArray(VAO2);
+
+  glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(firstTriangle), firstTriangle,
+               GL_STATIC_DRAW);
+  // position attribute
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void *)0);
+  glEnableVertexAttribArray(0);
+  // color attribute
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
+                        (void *)(3 * sizeof(float)));
+  glEnableVertexAttribArray(1);
+
+  glBindVertexArray(0);
   // Wireframe mode
   // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
   // render loop
@@ -171,8 +160,8 @@ int main(int argc, char *argv[]) {
     glUseProgram(shaderProgram);
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
-    glUseProgram(yellowShaderProgram);
-    glDrawArrays(GL_TRIANGLES, 3, 3);
+    glBindVertexArray(VAO2);
+    glDrawArrays(GL_TRIANGLES, 0, 3);
 
     // check and call events and swap the buffers
     glfwSwapBuffers(window);
