@@ -16,7 +16,7 @@ OBJ_DIR = obj
 TARGET = $(BIN_DIR)/app
 
 # Source files
-SRC = main.cpp glad.c
+SRC = main.cpp glad.c Shader.cpp
 
 # Object files (stored in obj/ directory)
 OBJ = $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(filter %.cpp, $(SRC))) \
