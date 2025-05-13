@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 
     // triangles wooooo
     ourShader.use();
-	ourShader.setFloat("xOffset", 0.5f);
+	ourShader.setFloat("xOffset", 0.0f);
     glBindVertexArray(VAO);
     glDrawArrays(GL_TRIANGLES, 0, 3);
 
