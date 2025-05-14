@@ -2,17 +2,24 @@
 #include "Shader.h"
 #include "stb_image.h"
 
-#include <algorithm>
-#include <cstddef>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/vector_float4.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
+#include <algorithm>
+#include <cstddef>
+#include <glm/trigonometric.hpp>
 #include <iostream>
 // clang-format on
 
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 
-float interpolationFactor = 0.5f;
+float interpolationFactor = 0.7f;
 
 int main(int argc, char *argv[]) {
   glfwInit();
@@ -129,6 +136,9 @@ int main(int argc, char *argv[]) {
   // setting the texture unit
   glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
   ourShader.setInt("texture2", 1);
+
+  // Transformation matrices
+
   // render loop
   while (!glfwWindowShouldClose(window)) {
     // input
@@ -146,7 +156,13 @@ int main(int argc, char *argv[]) {
     glBindTexture(GL_TEXTURE_2D, textures[1]);
     glBindVertexArray(VAO);
 
+
     ourShader.setFloat("interpolationFactor", interpolationFactor);
+    glm::mat4 trans = glm::mat4(1.0f);
+    trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+    trans = glm::rotate(trans, (float)glfwGetTime(), glm::vec3(0, 0, 1));
+    unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
     // glDrawArrays(GL_TRIANGLES, 0, 3);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
