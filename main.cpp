@@ -12,7 +12,6 @@
 
 #include <algorithm>
 #include <cstddef>
-#include <glm/trigonometric.hpp>
 #include <iostream>
 // clang-format on
 
@@ -156,7 +155,6 @@ int main(int argc, char *argv[]) {
     glBindTexture(GL_TEXTURE_2D, textures[1]);
     glBindVertexArray(VAO);
 
-
     ourShader.setFloat("interpolationFactor", interpolationFactor);
     glm::mat4 trans = glm::mat4(1.0f);
     trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
@@ -164,6 +162,15 @@ int main(int argc, char *argv[]) {
     unsigned int transformLoc = glGetUniformLocation(ourShader.ID, "transform");
     glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
     // glDrawArrays(GL_TRIANGLES, 0, 3);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+
+    trans = glm::mat4(1.0f);
+    trans = glm::translate(trans, glm::vec3(-0.5f, 0.5f, 0.0f));
+    float scaleFactor = static_cast<float>(sin(glfwGetTime()));
+    trans = glm::scale(trans, glm::vec3(scaleFactor, scaleFactor, 0));
+
+    transformLoc = glGetUniformLocation(ourShader.ID, "transform");
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     // check and call events and swap the buffers
