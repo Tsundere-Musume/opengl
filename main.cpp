@@ -2,10 +2,14 @@
 #include "Shader.h"
 #include "stb_image.h"
 
+#include <complex>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/detail/qualifier.hpp>
 #include <glm/ext/matrix_transform.hpp>
+#include <glm/ext/vector_float3.hpp>
 #include <glm/ext/vector_float4.hpp>
+#include <glm/geometric.hpp>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -19,9 +23,13 @@
 void framebuffer_size_callback(GLFWwindow *window, int width, int height);
 void processInput(GLFWwindow *window);
 
-float interpolationFactor = 1.0f;
-float cameraPos = -3.0f;
+float interpolationFactor = 0.3f;
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
+float deltaTime = 0.0f;
+float lastFrame = 0.0f;
 int main(int argc, char *argv[]) {
   glfwInit();
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -142,7 +150,8 @@ int main(int argc, char *argv[]) {
 
   int width, height, nrChannels;
   // box texture
-  unsigned char *data = stbi_load("sus.jpg", &width, &height, &nrChannels, 0);
+  unsigned char *data =
+      stbi_load("container.jpg", &width, &height, &nrChannels, 0);
   if (data) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
                  GL_UNSIGNED_BYTE, data);
@@ -182,8 +191,13 @@ int main(int argc, char *argv[]) {
       glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
       glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
 
+  // const float radius = 10.0f;
   // render loop
   while (!glfwWindowShouldClose(window)) {
+    float currentFrame = glfwGetTime();
+	deltaTime = currentFrame - lastFrame;
+	lastFrame= currentFrame;
+
     // input
     processInput(window);
 
@@ -202,35 +216,39 @@ int main(int argc, char *argv[]) {
     ourShader.setFloat("interpolationFactor", interpolationFactor);
 
     // Transformation matrices (Coordinate spaces)
+
+    // projection matrix
+    glm::mat4 projection;
+    projection =
+        glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
+    ourShader.setMat4("projection", projection);
+
+    // Camera
+    // glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+    // glm::vec3 cameraTarget = glm::vec3(0.0f, 0.0f, 0.0f);
+    // // reverse the direction
+    // glm::vec3 cameraDirection = glm::normalize(cameraPos - cameraTarget);
+    //
+    // glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+    // // points to the positive x axis
+    // glm::vec3 cameraRight = glm::normalize(glm::cross(up, cameraDirection));
+    // glm::vec3 cameraUp =
+    //     glm::normalize(glm::cross(cameraDirection, cameraRight));
+
+    // view matrix
+    // float camX = sin(glfwGetTime()) * radius;
+    // float camZ = cos(glfwGetTime()) * radius;
+
+    glm::mat4 view;
+    view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+    ourShader.setMat4("view", view);
     for (int i = 0; i < 10; ++i) {
       // model matrix
       glm::mat4 model = glm::mat4(1.0f);
       model = glm::translate(model, cubePositions[i]);
-      if (i % 3 == 0) {
-        model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f),
-                            glm::vec3(0.5f, 1.0f, 0.0f));
-      }
-
-      // view matrix
-      glm::mat4 view = glm::mat4(1.0f);
-      view = glm::translate(view, glm::vec3(0.0f, 0.0f, cameraPos));
-
-      // projection matrix
-      glm::mat4 projection;
-      projection =
-          glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
-      // model matrix
-      int modelLoc = glGetUniformLocation(ourShader.ID, "model");
-      glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-      // view
-      int viewLoc = glGetUniformLocation(ourShader.ID, "view");
-      glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-
-      // projection
-      int projectionLoc = glGetUniformLocation(ourShader.ID, "projection");
-      glUniformMatrix4fv(projectionLoc, 1, GL_FALSE,
-                         glm::value_ptr(projection));
+      model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f),
+                          glm::vec3(0.5f, 1.0f, 0.0f));
+      ourShader.setMat4("model", model);
 
       glDrawArrays(GL_TRIANGLES, 0, 36);
     }
@@ -262,11 +280,16 @@ void processInput(GLFWwindow *window) {
   if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
     interpolationFactor = std::max(interpolationFactor - 0.01f, 0.0f);
   }
-  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-    // cameraPos = std::min(cameraPos + 0.03f, -0.5f);
-    cameraPos += 0.02;
-  }
-  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-    cameraPos -= 0.03;
-  }
+  // camera movement
+  const float cameraSpeed = 2.5f * deltaTime;
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    cameraPos += cameraSpeed * cameraFront;
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    cameraPos -= cameraSpeed * cameraFront;
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    cameraPos -=
+        glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    cameraPos +=
+        glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
 }
