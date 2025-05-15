@@ -10,5 +10,5 @@ uniform float interpolationFactor;
 
 void main()
 {
-    FragColor = mix(texture(texture1, TexCoord), texture(texture2, vec2(1.0 - TexCoord.x, TexCoord.y)), interpolationFactor) * vec4(TexCoord, 1.0, 1.0); ;
+    FragColor = mix(texture(texture1, TexCoord), texture(texture2, vec2(1.0 - TexCoord.x, TexCoord.y)), interpolationFactor) ;
 }
