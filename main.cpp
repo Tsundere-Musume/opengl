@@ -42,7 +42,7 @@ int main(int argc, char *argv[]) {
     std::cout << "Failed to initialize GLAD" << std::endl;
     return -1;
   }
-	
+
   glEnable(GL_DEPTH_TEST);
   // shaders
   Shader ourShader("./shader_vs.glsl", "./shader_fs.glsl");
@@ -175,6 +175,14 @@ int main(int argc, char *argv[]) {
   glUniform1i(glGetUniformLocation(ourShader.ID, "texture1"), 0);
   ourShader.setInt("texture2", 1);
 
+  // Cubes
+  glm::vec3 cubePositions[] = {
+      glm::vec3(0.0f, 0.0f, 0.0f),    glm::vec3(2.0f, 5.0f, -15.0f),
+      glm::vec3(-1.5f, -2.2f, -2.5f), glm::vec3(-3.8f, -2.0f, -12.3f),
+      glm::vec3(2.4f, -0.4f, -3.5f),  glm::vec3(-1.7f, 3.0f, -7.5f),
+      glm::vec3(1.3f, -2.0f, -2.5f),  glm::vec3(1.5f, 2.0f, -2.5f),
+      glm::vec3(1.5f, 0.2f, -1.5f),   glm::vec3(-1.3f, 1.0f, -1.5f)};
+
   // render loop
   while (!glfwWindowShouldClose(window)) {
     // input
@@ -182,7 +190,7 @@ int main(int argc, char *argv[]) {
 
     // rendering commands
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f); // state setting function
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);         // state using function
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // state using function
 
     // triangles wooooo
     ourShader.use();
@@ -195,8 +203,10 @@ int main(int argc, char *argv[]) {
     ourShader.setFloat("interpolationFactor", interpolationFactor);
 
     // Transformation matrices (Coordinate spaces)
+	for(int i = 0; i < 10; ++i){
     // model matrix
     glm::mat4 model = glm::mat4(1.0f);
+	model = glm::translate(model, cubePositions[i]);
     model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f),
                         glm::vec3(0.5f, 1.0f, 0.0f));
 
@@ -221,6 +231,7 @@ int main(int argc, char *argv[]) {
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
     glDrawArrays(GL_TRIANGLES, 0, 36);
+	}
     // glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     // check and call events and swap the buffers
@@ -250,9 +261,10 @@ void processInput(GLFWwindow *window) {
     interpolationFactor = std::max(interpolationFactor - 0.01f, 0.0f);
   }
   if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS) {
-	  cameraPos = std::min(cameraPos + 0.03f, -0.5f);
+    // cameraPos = std::min(cameraPos + 0.03f, -0.5f);
+	cameraPos += 0.02;
   }
   if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
-	  cameraPos -= 0.03;
+    cameraPos -= 0.03;
   }
 }
