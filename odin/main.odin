@@ -24,6 +24,8 @@ last_y := 300.0
 camera := new_camera({0, 0, 3})
 first_mouse := true
 
+light_pos: glm.vec3 = {1.2, 1.0, 2.0}
+
 main :: proc() {
 	if !glfw.Init() {
 		fmt.eprintln("Failed to initialize GLFW")
@@ -97,8 +99,6 @@ main :: proc() {
 		{{-0.5, 0.5, -0.5}, {0.0, 1.0}},
 	}
 
-	indices := []u16{0, 1, 3, 1, 2, 3}
-
 	// opengl buffers
 	vao: u32
 	gl.GenVertexArrays(1, &vao);defer gl.DeleteVertexArrays(1, &vao)
@@ -118,84 +118,41 @@ main :: proc() {
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, size_of(Vertex), offset_of(Vertex, pos))
 	gl.EnableVertexAttribArray(0)
 
-	gl.VertexAttribPointer(1, 2, gl.FLOAT, false, size_of(Vertex), offset_of(Vertex, tex))
-	gl.EnableVertexAttribArray(1)
 
+	light_vao: u32
+	gl.GenVertexArrays(1, &light_vao)
+	gl.BindVertexArray(light_vao)
 
-	// gl.BindBuffer(gl.ELEMENT_ARRAY_BUFFER, ebo)
-	// gl.BufferData(
-	// 	gl.ELEMENT_ARRAY_BUFFER,
-	// 	len(indices) * size_of(indices[0]),
-	// 	raw_data(indices),
-	// 	gl.STATIC_DRAW,
-	// )
+	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
+	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, size_of(Vertex), offset_of(Vertex, pos))
+	gl.EnableVertexAttribArray(0)
 
 	gl.BindVertexArray(0)
-	// gl.PolygonMode(gl.FRONT_AND_BACK, gl.LINE)
-
 	// shaders
-	shader_program, program_ok := gl.load_shaders_file(
-		"./shaders/shader_vs.glsl",
-		"./shaders/shader_fs.glsl",
+	color_shader_program, light_cube_shader_program: u32
+	program_ok: bool
+	color_shader_program, program_ok = gl.load_shaders_file(
+		"./shaders/color_vs.glsl",
+		"./shaders/color_fs.glsl",
 	)
 	if !program_ok {
-		fmt.eprintln("failed to create a shader program")
+		fmt.eprintln("failed to create a shader program: color shader")
 		return
 	}
-	defer gl.DeleteProgram(shader_program)
+	defer gl.DeleteProgram(color_shader_program)
+	color_uniforms := gl.get_uniforms_from_program(color_shader_program)
 
-	gl.UseProgram(shader_program)
-	uniforms := gl.get_uniforms_from_program(shader_program)
-	// textures
-	texture: u32
-	gl.GenTextures(1, &texture)
-	gl.BindTexture(gl.TEXTURE_2D, texture)
-
-	// wrapping
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT)
-
-	//filtering
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR)
-	gl.TexParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR)
-
-	// loading textures
-	width, height, nChannel: i32
-	texture_data := image.load("./textures/leather.jpg", &width, &height, &nChannel, 0)
-	defer image.image_free(texture_data)
-	if texture_data == nil {
-		fmt.eprintln("failed to load texture data")
-		return
-	}
-	gl.TexImage2D(
-		gl.TEXTURE_2D,
-		0,
-		gl.RGB,
-		width,
-		height,
-		0,
-		gl.RGB,
-		gl.UNSIGNED_BYTE,
-		texture_data,
+	light_cube_shader_program, program_ok = gl.load_shaders_file(
+		"./shaders/light_cube_vs.glsl",
+		"./shaders/light_cube_fs.glsl",
 	)
-	gl.GenerateMipmap(gl.TEXTURE_2D)
-	gl.Uniform1i(uniforms["tex"].location, 0)
-
-
-	// cube positions
-	cube_positions := []glm.vec3 {
-		{0.0, 0.0, 0.0},
-		{2.0, 5.0, -15.0},
-		{-1.5, -2.2, -2.5},
-		{-3.8, -2.0, -12.3},
-		{2.4, -0.4, -3.5},
-		{-1.7, 3.0, -7.5},
-		{1.3, -2.0, -2.5},
-		{1.5, 2.0, -2.5},
-		{1.5, 0.2, -1.5},
-		{-1.3, 1.0, -1.5},
+	if !program_ok {
+		fmt.eprintln("failed to create a shader program: light cube shader")
+		return
 	}
-	start_tick := time.tick_now()
+	defer gl.DeleteProgram(light_cube_shader_program)
+	light_cube_uniforms := gl.get_uniforms_from_program(light_cube_shader_program)
+
 	for !glfw.WindowShouldClose(window) {
 		current_frame := f32(glfw.GetTime())
 		timedelta = f32(current_frame - lastframe)
@@ -206,25 +163,29 @@ main :: proc() {
 		gl.ClearColor(0.2, 0.3, 0.3, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
-		gl.ActiveTexture(gl.TEXTURE0)
-		gl.BindTexture(gl.TEXTURE_2D, texture)
+
+		gl.UseProgram(color_shader_program)
+		gl.Uniform3f(color_uniforms["object_color"].location, 1, 0.5, 0.31)
+		gl.Uniform3f(color_uniforms["light_color"].location, 1, 1, 1)
 
 		view := get_view_matrix(&camera)
-
 		proj := glm.mat4Perspective(glm.radians_f32(camera.zoom), 800.0 / 600.0, 0.1, 100.0)
-
+		model := glm.mat4(1)
+		model = model * glm.mat4Rotate({0.5, 1, 0}, f32(glfw.GetTime()))
+		u_transform := proj * view * model
+		gl.UniformMatrix4fv(color_uniforms["u_transform"].location, 1, false, &u_transform[0, 0])
 
 		gl.BindVertexArray(vao)
-		for i in 0 ..< 10 {
-			model := glm.mat4(1)
-			model = model * glm.mat4Translate(cube_positions[i])
-			model = model * glm.mat4Rotate({0.5, 1, 0}, f32(glfw.GetTime()))
+		gl.DrawArrays(gl.TRIANGLES, 0, 36)
 
-			u_transform := proj * view * model
-			gl.UniformMatrix4fv(uniforms["u_transform"].location, 1, false, &u_transform[0, 0])
-			gl.DrawArrays(gl.TRIANGLES, 0, 36)
-		}
-		// gl.DrawElements(gl.TRIANGLES, i32(len(indices)), gl.UNSIGNED_SHORT, nil)
+		gl.UseProgram(light_cube_shader_program)
+		model = glm.mat4(1)
+		model = model * glm.mat4Translate(light_pos)
+		model = model * glm.mat4Scale(glm.vec3(0.2))
+		u_transform = proj * view * model
+		gl.UniformMatrix4fv(light_cube_uniforms["u_transform"].location, 1, false, &u_transform[0, 0])
+		gl.BindVertexArray(light_vao)
+		gl.DrawArrays(gl.TRIANGLES, 0, 36)
 
 		glfw.SwapBuffers(window)
 		glfw.PollEvents()
