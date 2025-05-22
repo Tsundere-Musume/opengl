@@ -25,7 +25,7 @@ void processInput(GLFWwindow *window);
 void mouse_callback(GLFWwindow *window, double xpos, double ypos);
 void scroll_callback(GLFWwindow *window, double xoffset, double yoffset);
 
-float interpolationFactor = 0.3f;
+float interpolationFactor = 1;
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
 
   glEnable(GL_DEPTH_TEST);
   // shaders
-  Shader ourShader("./shader_vs.glsl", "./shader_fs.glsl");
+  Shader ourShader("./color_vs.glsl", "./color_fs.glsl");
   // clang-format off
  float vertices[] = {
         -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -158,7 +158,7 @@ int main(int argc, char *argv[]) {
   int width, height, nrChannels;
   // box texture
   unsigned char *data =
-      stbi_load("container.jpg", &width, &height, &nrChannels, 0);
+      stbi_load("sus.jpg", &width, &height, &nrChannels, 0);
   if (data) {
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
                  GL_UNSIGNED_BYTE, data);
@@ -316,4 +316,4 @@ void mouse_callback(GLFWwindow *window, double xpos, double ypos) {
 
 void scroll_callback(GLFWwindow *window, double offset, double yoffset) {
   camera.ProcessMouseScroll(static_cast<float>(yoffset));
-}
+}  

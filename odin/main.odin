@@ -58,45 +58,46 @@ main :: proc() {
 
 	Vertex :: struct {
 		pos: glm.vec3,
+		normals: glm.vec3,
 		tex: glm.vec2,
 	}
 	vertices := []Vertex {
-		{{-0.5, -0.5, -0.5}, {0.0, 0.0}},
-		{{0.5, -0.5, -0.5}, {1.0, 0.0}},
-		{{0.5, 0.5, -0.5}, {1.0, 1.0}},
-		{{0.5, 0.5, -0.5}, {1.0, 1.0}},
-		{{-0.5, 0.5, -0.5}, {0.0, 1.0}},
-		{{-0.5, -0.5, -0.5}, {0.0, 0.0}},
-		{{-0.5, -0.5, 0.5}, {0.0, 0.0}},
-		{{0.5, -0.5, 0.5}, {1.0, 0.0}},
-		{{0.5, 0.5, 0.5}, {1.0, 1.0}},
-		{{0.5, 0.5, 0.5}, {1.0, 1.0}},
-		{{-0.5, 0.5, 0.5}, {0.0, 1.0}},
-		{{-0.5, -0.5, 0.5}, {0.0, 0.0}},
-		{{-0.5, 0.5, 0.5}, {1.0, 0.0}},
-		{{-0.5, 0.5, -0.5}, {1.0, 1.0}},
-		{{-0.5, -0.5, -0.5}, {0.0, 1.0}},
-		{{-0.5, -0.5, -0.5}, {0.0, 1.0}},
-		{{-0.5, -0.5, 0.5}, {0.0, 0.0}},
-		{{-0.5, 0.5, 0.5}, {1.0, 0.0}},
-		{{0.5, 0.5, 0.5}, {1.0, 0.0}},
-		{{0.5, 0.5, -0.5}, {1.0, 1.0}},
-		{{0.5, -0.5, -0.5}, {0.0, 1.0}},
-		{{0.5, -0.5, -0.5}, {0.0, 1.0}},
-		{{0.5, -0.5, 0.5}, {0.0, 0.0}},
-		{{0.5, 0.5, 0.5}, {1.0, 0.0}},
-		{{-0.5, -0.5, -0.5}, {0.0, 1.0}},
-		{{0.5, -0.5, -0.5}, {1.0, 1.0}},
-		{{0.5, -0.5, 0.5}, {1.0, 0.0}},
-		{{0.5, -0.5, 0.5}, {1.0, 0.0}},
-		{{-0.5, -0.5, 0.5}, {0.0, 0.0}},
-		{{-0.5, -0.5, -0.5}, {0.0, 1.0}},
-		{{-0.5, 0.5, -0.5}, {0.0, 1.0}},
-		{{0.5, 0.5, -0.5}, {1.0, 1.0}},
-		{{0.5, 0.5, 0.5}, {1.0, 0.0}},
-		{{0.5, 0.5, 0.5}, {1.0, 0.0}},
-		{{-0.5, 0.5, 0.5}, {0.0, 0.0}},
-		{{-0.5, 0.5, -0.5}, {0.0, 1.0}},
+		{{-0.5, -0.5, -0.5},{0,0,-1}, {0.0, 0.0}},
+		{{0.5, -0.5, -0.5},{0,0,-1}, {1.0, 0.0}},
+		{{0.5, 0.5, -0.5},{0,0,-1}, {1.0, 1.0}},
+		{{0.5, 0.5, -0.5},{0,0,-1}, {1.0, 1.0}},
+		{{-0.5, 0.5, -0.5},{0,0,-1}, {0.0, 1.0}},
+		{{-0.5, -0.5, -0.5},{0,0,-1}, {0.0, 0.0}},
+		{{-0.5, -0.5, 0.5},{0,0,1}, {0.0, 0.0}},
+		{{0.5, -0.5, 0.5},{0,0,1}, {1.0, 0.0}},
+		{{0.5, 0.5, 0.5},{0,0,1}, {1.0, 1.0}},
+		{{0.5, 0.5, 0.5},{0,0,1}, {1.0, 1.0}},
+		{{-0.5, 0.5, 0.5},{0,0,1}, {0.0, 1.0}},
+		{{-0.5, -0.5, 0.5},{0,0,1}, {0.0, 0.0}},
+		{{-0.5, 0.5, 0.5},{-1,0,0}, {1.0, 0.0}},
+		{{-0.5, 0.5, -0.5},{-1,0,0}, {1.0, 1.0}},
+		{{-0.5, -0.5, -0.5},{-1,0,0}, {0.0, 1.0}},
+		{{-0.5, -0.5, -0.5},{-1,0,0}, {0.0, 1.0}},
+		{{-0.5, -0.5, 0.5},{-1,0,0}, {0.0, 0.0}},
+		{{-0.5, 0.5, 0.5},{-1,0,0}, {1.0, 0.0}},
+		{{0.5, 0.5, 0.5},{1,0,0}, {1.0, 0.0}},
+		{{0.5, 0.5, -0.5},{1,0,0}, {1.0, 1.0}},
+		{{0.5, -0.5, -0.5},{1,0,0}, {0.0, 1.0}},
+		{{0.5, -0.5, -0.5},{1,0,0}, {0.0, 1.0}},
+		{{0.5, -0.5, 0.5},{1,0,0}, {0.0, 0.0}},
+		{{0.5, 0.5, 0.5},{1,0,0}, {1.0, 0.0}},
+		{{-0.5, -0.5, -0.5},{0,-1,0}, {0.0, 1.0}},
+		{{0.5, -0.5, -0.5},{0,-1,0}, {1.0, 1.0}},
+		{{0.5, -0.5, 0.5},{0,-1,0}, {1.0, 0.0}},
+		{{0.5, -0.5, 0.5},{0,-1,0}, {1.0, 0.0}},
+		{{-0.5, -0.5, 0.5},{0,-1,0}, {0.0, 0.0}},
+		{{-0.5, -0.5, -0.5},{0,-1,0}, {0.0, 1.0}},
+		{{-0.5, 0.5, -0.5},{0,1,0}, {0.0, 1.0}},
+		{{0.5, 0.5, -0.5},{0,1,0}, {1.0, 1.0}},
+		{{0.5, 0.5, 0.5},{0,1,0}, {1.0, 0.0}},
+		{{0.5, 0.5, 0.5},{0,1,0}, {1.0, 0.0}},
+		{{-0.5, 0.5, 0.5},{0,1,0}, {0.0, 0.0}},
+		{{-0.5, 0.5, -0.5},{0,1,0}, {0.0, 1.0}},
 	}
 
 	// opengl buffers
@@ -109,14 +110,11 @@ main :: proc() {
 
 	gl.BindVertexArray(vao)
 	gl.BindBuffer(gl.ARRAY_BUFFER, vbo)
-	gl.BufferData(
-		gl.ARRAY_BUFFER,
-		len(vertices) * size_of(vertices[0]),
-		raw_data(vertices),
-		gl.STATIC_DRAW,
-	)
+	gl.BufferData( gl.ARRAY_BUFFER, len(vertices) * size_of(vertices[0]), raw_data(vertices), gl.STATIC_DRAW)
 	gl.VertexAttribPointer(0, 3, gl.FLOAT, false, size_of(Vertex), offset_of(Vertex, pos))
 	gl.EnableVertexAttribArray(0)
+	gl.VertexAttribPointer(1, 3, gl.FLOAT, false, size_of(Vertex), offset_of(Vertex, normals))
+	gl.EnableVertexAttribArray(1)
 
 
 	light_vao: u32
@@ -160,20 +158,25 @@ main :: proc() {
 
 		process_input(window)
 
-		gl.ClearColor(0.2, 0.3, 0.3, 1.0)
+		gl.ClearColor(0.1, 0.1, 0.1, 1.0)
 		gl.Clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT)
 
 
 		gl.UseProgram(color_shader_program)
-		gl.Uniform3f(color_uniforms["object_color"].location, 1, 0.5, 0.31)
-		gl.Uniform3f(color_uniforms["light_color"].location, 1, 1, 1)
+		gl.Uniform3f(color_uniforms["object_color"].location, 1.0, 0.5, 0.31)
+		gl.Uniform3f(color_uniforms["light_color"].location, 1.0, 1.0, 1.0)
+		gl.Uniform3fv(color_uniforms["light_pos"].location, 1, raw_data(light_pos[:]))
+		gl.Uniform3fv(color_uniforms["view_pos"].location, 1, raw_data(camera.position[:]))
 
 		view := get_view_matrix(&camera)
 		proj := glm.mat4Perspective(glm.radians_f32(camera.zoom), 800.0 / 600.0, 0.1, 100.0)
 		model := glm.mat4(1)
-		model = model * glm.mat4Rotate({0.5, 1, 0}, f32(glfw.GetTime()))
+		// model = model * glm.mat4Rotate({0.5, 1, 0}, f32(glfw.GetTime()))
 		u_transform := proj * view * model
-		gl.UniformMatrix4fv(color_uniforms["u_transform"].location, 1, false, &u_transform[0, 0])
+		gl.UniformMatrix4fv(color_uniforms["model"].location, 1, false, &model[0, 0])
+		gl.UniformMatrix4fv(color_uniforms["view"].location, 1, false, &view[0, 0])
+		gl.UniformMatrix4fv(color_uniforms["proj"].location, 1, false, &proj[0, 0])
+		gl.UniformMatrix4fv(color_uniforms["a_transform"].location, 1, false, &u_transform[0, 0])
 
 		gl.BindVertexArray(vao)
 		gl.DrawArrays(gl.TRIANGLES, 0, 36)
@@ -183,7 +186,12 @@ main :: proc() {
 		model = model * glm.mat4Translate(light_pos)
 		model = model * glm.mat4Scale(glm.vec3(0.2))
 		u_transform = proj * view * model
-		gl.UniformMatrix4fv(light_cube_uniforms["u_transform"].location, 1, false, &u_transform[0, 0])
+		gl.UniformMatrix4fv(
+			light_cube_uniforms["u_transform"].location,
+			1,
+			false,
+			&u_transform[0, 0],
+		)
 		gl.BindVertexArray(light_vao)
 		gl.DrawArrays(gl.TRIANGLES, 0, 36)
 

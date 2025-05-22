@@ -1,6 +1,5 @@
 .o
 opengl.md
-/bin/
-/odin/bin/
-/obj/
+**/bin/
+**/obj/
 
