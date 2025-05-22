@@ -182,6 +182,9 @@ float vertices[] = {
     lightCubeShader.setMat4("projection", projection);
     lightCubeShader.setMat4("view", view);
     model = glm::mat4(1.0f);
+    lightPos.x = cos(glfwGetTime())  * 2.0f;
+    lightPos.z = sin(glfwGetTime()) * 2.0f;
+	lightPos.y = 0;
     model = glm::translate(model, lightPos);
     model = glm::scale(model, glm::vec3(0.2f)); // a smaller cube
     lightCubeShader.setMat4("model", model);

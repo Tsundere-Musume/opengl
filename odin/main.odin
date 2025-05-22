@@ -12,8 +12,8 @@ import "vendor:glfw"
 import "vendor:stb/image"
 
 
-GL_VERSION_MAJOR :: 3
-GL_VERSION_MINOR :: 3
+GL_VERSION_MAJOR :: 4
+GL_VERSION_MINOR :: 1
 
 WINDOW_WIDTH :: 800.0
 WINDOW_HEIGHT :: 600.0
@@ -165,8 +165,8 @@ main :: proc() {
 		gl.UseProgram(color_shader_program)
 		gl.Uniform3f(color_uniforms["object_color"].location, 1.0, 0.5, 0.31)
 		gl.Uniform3f(color_uniforms["light_color"].location, 1.0, 1.0, 1.0)
-		gl.Uniform3fv(color_uniforms["light_pos"].location, 1, raw_data(light_pos[:]))
-		gl.Uniform3fv(color_uniforms["view_pos"].location, 1, raw_data(camera.position[:]))
+		gl.Uniform3fv(color_uniforms["light_pos"].location, 1, &light_pos[0])
+		gl.Uniform3fv(color_uniforms["view_pos"].location, 1, &camera.position[0])
 
 		view := get_view_matrix(&camera)
 		proj := glm.mat4Perspective(glm.radians_f32(camera.zoom), 800.0 / 600.0, 0.1, 100.0)

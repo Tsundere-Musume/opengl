@@ -1,4 +1,4 @@
-#version 330 core
+#version 410 core
 
 in vec3 Normal;
 in vec3 FragPos;
@@ -27,6 +27,6 @@ void main() {
     vec3 specular = specular_strength * spec * light_color;  
 	// -------------------------------------------------
         
-    vec3 result = (ambient + diffuse + specular) * object_color;
+    vec3 result = (ambient + diffuse ) * object_color;
     frag_color = vec4(result, 1.0);
 }
